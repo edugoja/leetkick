@@ -1,0 +1,17 @@
+# .NET Core
+bin/
+obj/
+
+# User-specific files
+*.user
+*.userosscache
+*.sln.docuser
+
+# Visual Studio / Visual Studio Code
+.vs/
+.vscode/
+
+# Other
+*.log
+*.swp
+*~

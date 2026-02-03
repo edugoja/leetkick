@@ -1,0 +1,3 @@
+namespace LeetKick.__PROBLEM_PACKAGE__;
+
+__PROBLEM_DEFAULT_CODE__

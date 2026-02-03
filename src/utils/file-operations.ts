@@ -14,7 +14,9 @@ export async function createProblemFiles(
 ): Promise<void> {
   const templateDir = join(TEMPLATES_DIR, language);
   const paddedId = problem.questionFrontendId.padStart(4, '0');
-  const problemDirName = `problem_${paddedId}`;
+  // C# uses problemXXXX (no underscore) to match namespace conventions
+  const problemDirName =
+    language === 'csharp' ? `problem${paddedId}` : `problem_${paddedId}`;
   const languageDir = join(process.cwd(), language);
 
   // For Kotlin and Java, we need to create src/main/{lang} and src/test/{lang} structure
@@ -86,7 +88,9 @@ export async function createProblemFiles(
           ? `problem_${paddedId}`
           : language === 'python'
             ? `problem_${paddedId}`
-            : '',
+            : language === 'csharp'
+              ? `problem${paddedId}`
+              : '',
     __PROBLEM_CLASS_NAME__: className,
     __EXERCISE_FILE_NAME__: getExerciseFileName(
       className,
@@ -206,6 +210,7 @@ function getLanguageSlug(language: string): string {
     go: 'golang',
     rust: 'rust',
     kotlin: 'kotlin',
+    csharp: 'csharp',
   };
   return slugMap[language] || language;
 }
@@ -220,6 +225,7 @@ function getFileExtension(language: string): string {
     go: 'go',
     rust: 'rs',
     kotlin: 'kt',
+    csharp: 'cs',
   };
   return extMap[language] || 'txt';
 }
@@ -240,6 +246,7 @@ function getExerciseFileName(
       return `${snakeCaseName}.${ext}`;
     case 'kotlin':
     case 'java':
+    case 'csharp':
       return `${className}.${ext}`;
     case 'rust':
       return `problem_${paddedId || '0001'}.rs`;
@@ -267,6 +274,7 @@ function getExerciseFileNameNoExt(
       return snakeCaseName;
     case 'kotlin':
     case 'java':
+    case 'csharp':
       return className;
     case 'rust':
       return `problem_${paddedId || '0001'}`;
@@ -295,6 +303,7 @@ function getTestFileName(
     case 'kotlin':
       return `${className}Test.${ext}`;
     case 'java':
+    case 'csharp':
       return `${className}Test.${ext}`;
     case 'python':
       return `test_${snakeCaseName}.${ext}`;
@@ -325,6 +334,10 @@ function getDefaultCodeForLanguage(language: string, title: string): string {
 public:
     // TODO: Implement solution for ${title}
 };`;
+    case 'csharp':
+      return `public class Solution {
+    // TODO: Implement solution for ${title}
+}`;
     case 'go':
       return `// TODO: Implement solution for ${title}`;
     default:
@@ -383,7 +396,7 @@ function extractFunctionName(code: string): string | null {
     return cppMethodMatch[1];
   }
 
-  // Extract function name from Java code (public method in class)
+  // Extract function name from Java/C# code (public method in class)
   const javaMethodMatch = code.match(
     /public\s+[\w<>[\]]+\s+(\w+)\s*\([^)]*\)\s*\{/,
   );

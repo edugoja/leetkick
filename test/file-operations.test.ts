@@ -50,6 +50,16 @@ void test('file operations test suite', async t => {
     assert.strictEqual(javaMethodMatch?.[1], 'twoSum');
   });
 
+  await t.test('should extract function name from C# code', () => {
+    const code =
+      'public int[] TwoSum(int[] nums, int target) {\n    return new int[0];\n}';
+    // C# uses the same regex pattern as Java (public method in class)
+    const csharpMethodMatch = code.match(
+      /public\s+[\w<>[\]]+\s+(\w+)\s*\([^)]*\)\s*\{/,
+    );
+    assert.strictEqual(csharpMethodMatch?.[1], 'TwoSum');
+  });
+
   await t.test('should extract function name from Rust code', () => {
     const code =
       'pub fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {\n    vec![]\n}';
@@ -224,6 +234,7 @@ void test('file operations test suite', async t => {
       go: 'go',
       rust: 'rs',
       kotlin: 'kt',
+      csharp: 'cs',
     };
 
     assert.strictEqual(extMap.typescript, 'ts');
@@ -231,6 +242,7 @@ void test('file operations test suite', async t => {
     assert.strictEqual(extMap.python, 'py');
     assert.strictEqual(extMap.java, 'java');
     assert.strictEqual(extMap.kotlin, 'kt');
+    assert.strictEqual(extMap.csharp, 'cs');
   });
 
   await t.test('should get correct language slug for LeetCode API', () => {
@@ -243,6 +255,7 @@ void test('file operations test suite', async t => {
       go: 'golang',
       rust: 'rust',
       kotlin: 'kotlin',
+      csharp: 'csharp',
     };
 
     assert.strictEqual(slugMap.typescript, 'typescript');
@@ -250,6 +263,7 @@ void test('file operations test suite', async t => {
     assert.strictEqual(slugMap.python, 'python3');
     assert.strictEqual(slugMap.go, 'golang');
     assert.strictEqual(slugMap.kotlin, 'kotlin');
+    assert.strictEqual(slugMap.csharp, 'csharp');
   });
 
   await t.test('should generate correct test file names', () => {
@@ -262,6 +276,7 @@ void test('file operations test suite', async t => {
       java: `${className}Test.java`,
       cpp: `${snakeCaseName}.test.cpp`,
       kotlin: `${className}Test.kt`,
+      csharp: `${className}Test.cs`,
       go: `${snakeCaseName}_test.go`,
       rust: 'lib.rs', // Rust tests are in the same file
     };
@@ -272,6 +287,7 @@ void test('file operations test suite', async t => {
     assert.strictEqual(testNameMap.java, 'TwoSumTest.java');
     assert.strictEqual(testNameMap.cpp, 'two_sum.test.cpp');
     assert.strictEqual(testNameMap.kotlin, 'TwoSumTest.kt');
+    assert.strictEqual(testNameMap.csharp, 'TwoSumTest.cs');
     assert.strictEqual(testNameMap.go, 'two_sum_test.go');
     assert.strictEqual(testNameMap.rust, 'lib.rs');
   });
@@ -286,6 +302,7 @@ void test('file operations test suite', async t => {
       cpp: `${snakeCaseName}.cpp`,
       kotlin: `${className}.kt`,
       java: `${className}.java`,
+      csharp: `${className}.cs`,
       go: `${snakeCaseName}.go`,
       rust: 'lib.rs', // Rust always uses lib.rs
     };
@@ -294,6 +311,7 @@ void test('file operations test suite', async t => {
     assert.strictEqual(exerciseNameMap.javascript, 'TwoSum.js');
     assert.strictEqual(exerciseNameMap.python, 'two_sum.py');
     assert.strictEqual(exerciseNameMap.cpp, 'two_sum.cpp');
+    assert.strictEqual(exerciseNameMap.csharp, 'TwoSum.cs');
     assert.strictEqual(exerciseNameMap.go, 'two_sum.go');
     assert.strictEqual(exerciseNameMap.rust, 'lib.rs');
   });

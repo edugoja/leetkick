@@ -110,6 +110,21 @@ void test('templates test suite', async t => {
       join(mockTemplatesDir, 'rust', 'test_template.rs'),
       '// Tests are included in the main exercise file for Rust',
     );
+
+    // Create mock C# template files
+    await fs.mkdir(join(mockTemplatesDir, 'csharp'), {recursive: true});
+    await fs.writeFile(
+      join(mockTemplatesDir, 'csharp', 'LeetKick.csproj'),
+      '<Project Sdk="Microsoft.NET.Sdk"></Project>',
+    );
+    await fs.writeFile(
+      join(mockTemplatesDir, 'csharp', 'exercise_template.cs'),
+      'namespace LeetKick.__PROBLEM_PACKAGE__;\n\n__PROBLEM_DEFAULT_CODE__',
+    );
+    await fs.writeFile(
+      join(mockTemplatesDir, 'csharp', 'test_template.cs'),
+      'using Xunit;\nusing LeetKick.__PROBLEM_PACKAGE__;\n\npublic class __PROBLEM_CLASS_NAME__Test {}',
+    );
   });
 
   await t.test(
@@ -142,7 +157,8 @@ void test('templates test suite', async t => {
       assert(languages.includes('kotlin'));
       assert(languages.includes('java'));
       assert(languages.includes('rust'));
-      assert.strictEqual(languages.length, 7);
+      assert(languages.includes('csharp'));
+      assert.strictEqual(languages.length, 8);
     },
   );
 
@@ -388,6 +404,42 @@ void test('templates test suite', async t => {
     assert(exerciseContent.includes('pub struct Solution;'));
     assert(exerciseContent.includes('#[cfg(test)]'));
     assert(exerciseContent.includes('mod tests'));
+  });
+
+  await t.test('should handle C# template structure correctly', async () => {
+    const csharpDir = join(mockTemplatesDir, 'csharp');
+    const files = await fs.readdir(csharpDir);
+
+    // Check that C# has the required files
+    assert(
+      files.includes('LeetKick.csproj'),
+      'Should have LeetKick.csproj',
+    );
+    assert(
+      files.includes('exercise_template.cs'),
+      'Should have exercise template',
+    );
+    assert(
+      files.includes('test_template.cs'),
+      'Should have test template',
+    );
+
+    // Check that exercise template has correct namespace and placeholder
+    const exerciseContent = await fs.readFile(
+      join(csharpDir, 'exercise_template.cs'),
+      'utf-8',
+    );
+    assert(exerciseContent.includes('namespace LeetKick.__PROBLEM_PACKAGE__'));
+    assert(exerciseContent.includes('__PROBLEM_DEFAULT_CODE__'));
+
+    // Check that test template has correct structure
+    const testContent = await fs.readFile(
+      join(csharpDir, 'test_template.cs'),
+      'utf-8',
+    );
+    assert(testContent.includes('using Xunit'));
+    assert(testContent.includes('using LeetKick.__PROBLEM_PACKAGE__'));
+    assert(testContent.includes('__PROBLEM_CLASS_NAME__Test'));
   });
 
   // Cleanup after each test
